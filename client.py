@@ -4,6 +4,8 @@ import time
 from kafka import KafkaProducer
 import socketio
 from keras.models import model_from_json
+import tensorflow as tf
+import keras
 
 from modeling_utils import _load_data, encode, decode
 
@@ -29,6 +31,7 @@ class Node:
     def register_handles(self):
         self.sio.on("connection_received", self.connection_received)
         self.sio.on("start_training", self.start_training)
+        self.sio.on("end_session", self.end_session)
 
     def connection_received(self):
         print(f"Server at {self.server} returned success")
@@ -78,9 +81,12 @@ class Node:
     def end_session(self, data):
         model_weights = decode(data["model"])
         self.model.set_weights(model_weights)
+        self.sio.disconnect()
 
 
 if __name__ == "__main__":
-    node = Node("http://0.0.0.0:5001", partition=2, client="client2")
+    print(tf.__version__)
+    print(keras.__version__)
+    node = Node("http://192.168.78.202:5001", partition=2, client="client2")
     node.connect()
     node.sio.wait()

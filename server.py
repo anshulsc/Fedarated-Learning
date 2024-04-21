@@ -16,7 +16,7 @@ from modeling_utils import load_model_and_data, encode, decode
 
 
 class Server:
-    def __init__(self, min_nodes: int = 1, rounds: int = 10):
+    def __init__(self, min_nodes: int = 2, rounds: int = 10):
         self.sio = socketio.AsyncServer(async_mode="aiohttp")
         self.app = web.Application()
         self.sio.attach(self.app)
@@ -70,7 +70,7 @@ class Server:
             callback=start_training_callback,
         )
 
-    def run_server(self, host="0.0.0.0", port=5001):
+    def run_server(self, host="192.168.78.202", port=5001):
         web.run_app(self.app, host=host, port=port)
 
     def store_history(self):  # Returns Keras model
@@ -102,6 +102,7 @@ class Server:
                         np.mean(np.array(lst_weights), axis=0)
                     )
             agg_model_weights.update({idx: agg_layer_weights})
+        print("Weights Aggregated")
         return agg_model_weights
 
     def evaluate(self, aggregated_weights):
